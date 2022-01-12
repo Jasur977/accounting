@@ -43,8 +43,6 @@ if (isset($_POST['login'])){
         $_SESSION['user_id']= $db_id;
 
         header ("Location: index.php");
-    } else{
-        header("Location: login.php");
     }
 
 
