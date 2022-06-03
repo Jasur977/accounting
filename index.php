@@ -24,20 +24,14 @@ $time_out = $time - $time_out_in_seconds;
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Accounting</a>
+            <a class="navbar-brand" href="index.php">Accounting</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li>
-                    <a href="#">About</a>
-                </li>
-                <li>
-                    <a href="#">Services</a>
-                </li>
-                <li>
-                    <a href="#">Contact</a>
+                    <a href="categories.php">Categories</a>
                 </li>
                 <li>
                     <a href="registration.php">Registration</a>
@@ -100,7 +94,7 @@ $time_out = $time - $time_out_in_seconds;
 
         $acc_type = $_POST['type'];
         $acc_category = $_POST['category'];
-        $acc_date = date('d-m-y');
+        $acc_date = date('Y-m-d', strtotime($_POST['date']));
         $acc_sum = $_POST['sum'];
         $acc_comment = $_POST['comment'];
         $acc_id = $_POST['type'];
@@ -108,14 +102,14 @@ $time_out = $time - $time_out_in_seconds;
        switch ($select1){
            case '1':
             $overall_sum = $singlerow['0'] + $acc_sum;
-            $query = "INSERT INTO account(user_id , type , category , date, sum, overall_sum, comment  ) ";
+            $query = "INSERT INTO account(user_id , type , category_id , date, sum, overall_sum, comment  ) ";
 
             $query .=
-                "VALUES ('$user_id', '{$acc_type}', '{$acc_category}', now(), '{$acc_sum}', '{$overall_sum}', 
+                "VALUES ('$user_id', '{$acc_type}', '{$acc_category}', '{$acc_date}', '{$acc_sum}', '{$overall_sum}', 
                  '{$acc_comment}' ) ";
             $create_acc_query = mysqli_query($connection, $query);
             if (!$create_acc_query) {
-                die("Query Failed gg ." . mysqli_error($connection));
+                die("Query Failed gg g." . mysqli_error($connection));
             }
             $the_acc_id = mysqli_insert_id($connection);
 
@@ -131,14 +125,14 @@ $time_out = $time - $time_out_in_seconds;
                    echo ("no money");
                    header ("Location: index.php");
                }
-               $query = "INSERT INTO account(user_id , type , category , date, sum, overall_sum, comment  ) ";
+               $query = "INSERT INTO account(user_id , type , category_id , date, sum, overall_sum, comment  ) ";
 
                $query .=
-                   "VALUES ('{$user_id}', '{$acc_type}', '{$acc_category}', now(), '{$acc_sum}', '{$overall_sum}', 
+                   "VALUES ('{$user_id}', '{$acc_type}', '{$acc_category}', '{$acc_date}', '{$acc_sum}', '{$overall_sum}', 
                  '{$acc_comment}' ) ";
                $create_acc_query = mysqli_query($connection, $query);
                if (!$create_acc_query) {
-                   die("Query Failed gg ." . mysqli_error($connection));
+                   die("Query Failed gg gg ." . mysqli_error($connection));
                }
 
 
@@ -179,32 +173,46 @@ $time_out = $time - $time_out_in_seconds;
 
                 <select name="type" id="type" required>
 
-                    <option value="1" name="income">Доход</option>
-                    <option value="0">Расход</option>
+                    <option value="1" name="income">Income</option>
+                    <option value="0">Expense</option>
 
                 </select>
             </div>
 
             <div class="form-group">
                 <select name="category" id="" required>
-                <option value="">КАТЕГОРИЯ</option>
-                <option value="Заработная плата">Заработная плата</option>
-                <option value="Иные доходы">Иные доходы</option>
-                <option value="Мобильная связь">Мобильная связь</option>
-                <option value="Интернет">Интернет</option>
-                <option value="Продукты питания">Продукты питания</option>
-                <option value="Транспорт">Транспорт</option>
-                <option value="Развлечения">Развлечения</option>
-                <option value="Другое">Другое</option>
+                    <?php
+
+                    $query = "SELECT * FROM categories where True";
+                    $select_categories = mysqli_query($connection, $query);
+
+                    if (!$select_categories ){
+                        die("Query Failed ." . mysqli_error($connection));
+                    }
+
+                    while ($row = mysqli_fetch_assoc($select_categories)) {
+                        $cat_id = $row['cat_id'];
+                        $cat_title = $row['cat_title'];
+
+                        echo "<option value='$cat_id'> {$cat_title}<?option>";
+                    }
+
+
+
+                    ?>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label for="">Date</label>
+                <input type="date" name="date" class="form-control">
+
             </div>
 
 
 
-
-
             <div class="form-group">
-                <label for="sum">СУММА</label>
+                <label for="sum">SUM</label>
                 <input type="text" class="form-control" name="sum" required>
 
             </div>
@@ -212,7 +220,7 @@ $time_out = $time - $time_out_in_seconds;
 
 
             <div class="form-group">
-                <label for="comment" >КОММЕНТАРИЙ</label>
+                <label for="comment" >Comment</label>
                 <textarea type="text" class="form-control" name="comment" id="summernote" cols="30" rows="10">
         </textarea>
             </div>
@@ -238,12 +246,12 @@ $time_out = $time - $time_out_in_seconds;
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>ТИП</th>
-                    <th>КАТЕГОРИЯ</th>
-                    <th>ДАТА</th>
-                    <th>СУММА</th>
-                    <th>ИТОГО</th>
-                    <th>КОММЕНТАРИЙ</th>
+                    <th>TYPE</th>
+                    <th>CATEGORY</th>
+                    <th>DATE</th>
+                    <th>SUM</th>
+                    <th>OVERALL</th>
+                    <th>COMMENT</th>
 
 
                 </tr>
@@ -251,13 +259,13 @@ $time_out = $time - $time_out_in_seconds;
                 <tbody>
                 <?php
 
-                $query = "SELECT * FROM account WHERE user_id = '{$user_id}'";
+                $query = "SELECT * FROM account join categories on (account.category_id = categories.cat_id) WHERE account.user_id = '{$user_id}'";
                 $select_account = mysqli_query($connection, $query);
                 while ($row = mysqli_fetch_assoc($select_account)) {
                     $acc_id = $row['id'];
                     $acc_type = $row['type'];
-                    $acc_category = $row['category'];
-                    $acc_date = date('d-m-y');
+                    $acc_category = $row['cat_title'];
+                    $acc_date = date('Y-m-d', strtotime($row['date']));
                     $acc_sum = $row['sum'];
                     $acc_overall = $row['overall_sum'];
                     $acc_comment = $row['comment'];
@@ -268,11 +276,11 @@ $time_out = $time - $time_out_in_seconds;
                     $nombre_format_francaiss = number_format($acc_overall, 2, ',', ' ');
                     echo "<td> $acc_id </td> ";
                     if($acc_type==1) {
-                        echo "<td> Доход </td> ";
+                        echo "<td> Income </td> ";
                     }else{
-                        echo "<td> Расход </td> ";
+                        echo "<td> Expense </td> ";
                     }
-                    echo "<td> $acc_category </td> ";
+                    echo "<td> $acc_category</td> ";
                     echo "<td> $acc_date  </td>";
                     echo "<td>  $nombre_format_francais</td>";
                     echo "<td> $nombre_format_francaiss </td>";
@@ -296,7 +304,41 @@ $time_out = $time - $time_out_in_seconds;
                 </tbody>
             </table>
         </form>
+    <div class="col-md-6">
+        <div class="well">
+            <h4>Search by Date</h4>
+<!--            <form action="google.php" method="post">-->
+<!--                <div class="input-group">-->
+<!--                    -->
+<!--                    -->
+<!--                    -->
+<!--                    -->
+<!--                    -->
+<!--                    <label for="">From</label>-->
+<!---->
+<!--                    <input name="search post_at" type="date" class="form-control">-->
+<!---->
+<!--                    <label for="">To</label>-->
+<!--                    <input name="search post_at_to_date" type="date" class="form-control">-->
+<!--                    <span class="input-group-btn">-->
+<!--                            <button name="submit" class="btn btn-default" type="submit">-->
+<!--                                <span class="glyphicon glyphicon-search"></span>-->
+<!--                            </button>-->
+<!--                    </span>-->
+<!--                </div>-->
+<!--            </form>-->
 
+            <!-- Search filter -->
+            <form method='post' action='search.php'>
+                Start Date <input type='date' class='dateFilter' name='fromDate' value='<?php if(isset($_POST['fromDate'])) echo $_POST['fromDate']; ?>'>
+
+                End Date <input type='date' class='dateFilter' name='endDate' value='<?php if(isset($_POST['endDate'])) echo $_POST['endDate']; ?>'>
+
+                <input type='submit' name='but_search' value='Search'>
+            </form>
+            <!-- /.input-group -->
+        </div>
+    </div>
 
 
 

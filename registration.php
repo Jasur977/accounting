@@ -1,5 +1,7 @@
 <?php  include "includes/db.php"; ?>
-<?php  include "includes/header.php"; ?>
+<?php  include "includes/header.php";
+
+?>
 
 
 <?php
@@ -41,6 +43,7 @@ if (isset($_POST['submit'])) {
 
 
         $message  = "Your Registration has been submitted";
+        header("Location: login.php");
     } else{
         $message = "Fields cannot be empty";
     }
